@@ -5,6 +5,7 @@ import { verifyJWT } from '../middleware/verifyJWT.js';
 import { verifyAdmin } from '../middleware/verifyRole.js';
 import { uploadToImgBB } from '../utils/uploadImage.js';
 
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
