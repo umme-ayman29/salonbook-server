@@ -39,6 +39,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/services/admin/all  (admin: active + inactive সব)
+router.get('/admin/all', verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const services = await getDB()
+      .collection('services')
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+    res.json(services);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load services' });
+  }
+});
+
 // GET /api/services/categories  (active সার্ভিসের ক্যাটাগরি ও সংখ্যা)
 router.get('/categories', async (req, res) => {
   try {
