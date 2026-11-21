@@ -89,6 +89,22 @@ router.post('/', verifyJWT, verifyCustomer, async (req, res) => {
   }
 });
 
+// GET /api/appointments/my/stats  (customer)
+router.get('/my/stats', verifyJWT, verifyCustomer, async (req, res) => {
+  try {
+    const customerId = new ObjectId(req.user.id);
+    const [total, pending, confirmed, cancelled] = await Promise.all([
+      col().countDocuments({ customerId }),
+      col().countDocuments({ customerId, status: 'pending' }),
+      col().countDocuments({ customerId, status: 'confirmed' }),
+      col().countDocuments({ customerId, status: 'cancelled' }),
+    ]);
+    res.json({ total, pending, confirmed, cancelled });
+  } catch {
+    res.status(500).json({ message: 'Failed to load stats' });
+  }
+});
+
 // GET /api/appointments/my  (customer: শুধু নিজেরগুলো)
 router.get('/my', verifyJWT, verifyCustomer, async (req, res) => {
   try {
