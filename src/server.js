@@ -6,6 +6,7 @@ import { verifyJWT } from './middleware/verifyJWT.js';
 import { verifyAdmin } from './middleware/verifyRole.js';
 import servicesRouter from './routes/services.js';
 import appointmentsRouter from './routes/appointments.js';
+import usersRouter from './routes/users.js';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/api/admin-check', verifyJWT, verifyAdmin, (req, res) => {
 
 app.use('/api/services', servicesRouter);
 app.use('/api/appointments', appointmentsRouter);
+app.use('/api/users', usersRouter);
 
 const port = process.env.PORT || 5000;
 
