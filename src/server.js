@@ -4,6 +4,7 @@ import cors from 'cors';
 import { connectDB } from './config/db.js';
 import { verifyJWT } from './middleware/verifyJWT.js';
 import { verifyAdmin } from './middleware/verifyRole.js';
+import servicesRouter from './routes/services.js';
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.get('/api/me', verifyJWT, (req, res) => {
 app.get('/api/admin-check', verifyJWT, verifyAdmin, (req, res) => {
   res.json({ message: 'Welcome admin' });
 });
+
+app.use('/api/services', servicesRouter);
 
 const port = process.env.PORT || 5000;
 
