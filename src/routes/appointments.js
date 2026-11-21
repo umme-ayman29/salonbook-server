@@ -140,6 +140,25 @@ router.patch('/:id/cancel', verifyJWT, verifyCustomer, async (req, res) => {
   }
 });
 
+// GET /api/appointments/admin/stats  (admin)
+router.get('/admin/stats', verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const db = getDB();
+    const [customers, activeServices, total, pending, confirmed, successfulPayments] =
+      await Promise.all([
+        db.collection('user').countDocuments({ role: { $ne: 'admin' } }),
+        db.collection('services').countDocuments({ status: 'active' }),
+        col().countDocuments({}),
+        col().countDocuments({ status: 'pending' }),
+        col().countDocuments({ status: 'confirmed' }),
+        db.collection('transactions').countDocuments({ status: 'paid' }),
+      ]);
+    res.json({ customers, activeServices, total, pending, confirmed, successfulPayments });
+  } catch {
+    res.status(500).json({ message: 'Failed to load stats' });
+  }
+});
+
 // GET /api/appointments/admin/all  (admin)
 router.get('/admin/all', verifyJWT, verifyAdmin, async (req, res) => {
   try {
