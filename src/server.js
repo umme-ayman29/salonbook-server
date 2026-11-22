@@ -20,7 +20,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
 app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
 app.use(express.json());
 
