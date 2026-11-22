@@ -12,6 +12,14 @@ import webhookRouter from './routes/webhook.js';
 
 const app = express();
 
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
 app.use(express.json());
