@@ -7,10 +7,13 @@ import { verifyAdmin } from './middleware/verifyRole.js';
 import servicesRouter from './routes/services.js';
 import appointmentsRouter from './routes/appointments.js';
 import usersRouter from './routes/users.js';
+import paymentsRouter from './routes/payments.js';
+import webhookRouter from './routes/webhook.js';
 
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -27,6 +30,7 @@ app.get('/api/admin-check', verifyJWT, verifyAdmin, (req, res) => {
 app.use('/api/services', servicesRouter);
 app.use('/api/appointments', appointmentsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/payments', paymentsRouter);
 
 const port = process.env.PORT || 5000;
 
