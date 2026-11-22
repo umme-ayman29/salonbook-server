@@ -34,11 +34,23 @@ app.use('/api/payments', paymentsRouter);
 
 const port = process.env.PORT || 5000;
 
-connectDB()
-  .then(() => {
-    app.listen(port, () => console.log(`Server running on port ${port}`));
-  })
-  .catch((err) => {
-    console.error('MongoDB connection failed:', err.message);
-    process.exit(1);
-  });
+// Vercel serverless-এর জন্য: প্রতি রিকোয়েস্টে DB সংযোগ নিশ্চিত করা
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
+
+if (!process.env.VERCEL) {
+  connectDB()
+    .then(() => app.listen(port, () => console.log(`Server running on port ${port}`)))
+    .catch((err) => {
+      console.error('MongoDB connection failed:', err.message);
+      process.exit(1);
+    });
+}
+
+export default app;
