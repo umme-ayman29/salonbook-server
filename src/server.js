@@ -11,16 +11,19 @@ import paymentsRouter from './routes/payments.js';
 import webhookRouter from './routes/webhook.js';
 
 const app = express();
+const port = process.env.PORT || 5000;
 
+// 1) CORS
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
+// 2) প্রতি রিকোয়েস্টে DB সংযোগ নিশ্চিত করা (Vercel serverless-এর জন্য)
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -31,20 +34,17 @@ app.use(async (req, res, next) => {
   }
 });
 
+// 3) Stripe webhook (raw body লাগে, তাই express.json()-এর আগে)
 app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
+
+// 4) JSON parser
 app.use(express.json());
 
+// 5) Routes
 app.get('/', (req, res) => {
   res.send('SalonBook server is running');
 });
 
-
-app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send('SalonBook server is running');
-});
 app.get('/api/me', verifyJWT, (req, res) => {
   res.json(req.user);
 });
@@ -58,6 +58,14 @@ app.use('/api/appointments', appointmentsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/payments', paymentsRouter);
 
-const port = process.env.PORT || 5000;
+// 6) লোকালে চালানোর জন্য (Vercel-এ listen লাগে না)
+if (!process.env.VERCEL) {
+  connectDB()
+    .then(() => app.listen(port, () => console.log(`Server running on port ${port}`)))
+    .catch((err) => {
+      console.error('MongoDB connection failed:', err.message);
+      process.exit(1);
+    });
+}
 
 export default app;
