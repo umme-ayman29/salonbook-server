@@ -21,6 +21,24 @@ app.use(
   })
 );
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB connection error:', err.message);
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
+
+app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send('SalonBook server is running');
+});
+
+
 app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRouter);
 app.use(express.json());
 
